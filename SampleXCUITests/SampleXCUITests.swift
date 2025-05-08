@@ -23,30 +23,30 @@ final class SampleXCUITests: XCTestCase {
     
     func testAlertShouldAppearAfterButtonTap() {
         let alertButton = app.buttons["Alert"]
-            XCTAssertTrue(alertButton.waitForExistence(timeout: 3),
-                         "Кнопка 'Alert' не найдена на экране")
+        XCTAssertTrue(alertButton.waitForExistence(timeout: 3),
+                      "Кнопка 'Alert' не найдена на экране")
         alertButton.tap()
         
         let alert = app.alerts.element.staticTexts["Alert"]
-            XCTAssertTrue(alert.waitForExistence(timeout: 3),
+        XCTAssertTrue(alert.waitForExistence(timeout: 3),
                       "Alert не появился после нажатия кнопки")
     }
     
     func testAlertShouldDisappearAfterTappingOK() {
         let alertButton = app.buttons["Alert"]
-            XCTAssertTrue(alertButton.waitForExistence(timeout: 3),
-                         "Кнопка 'Alert' не найдена на экране")
+        XCTAssertTrue(alertButton.waitForExistence(timeout: 3),
+                      "Кнопка 'Alert' не найдена на экране")
         alertButton.tap()
         
         let alert = app.alerts.element.staticTexts["Alert"]
-            XCTAssertTrue(alert.waitForExistence(timeout: 3),
+        XCTAssertTrue(alert.waitForExistence(timeout: 3),
                       "Alert не появился после нажатия кнопки")
         
         let alertButtonOK = app.alerts.element.buttons["OK"]
         alertButtonOK.tap()
         
         XCTAssertFalse(alert.waitForExistence(timeout: 3),
-                  "Alert должен исчезнуть после нажатия OK")
+                       "Alert должен исчезнуть после нажатия OK")
     }
     
     func testTextInputShouldDisplayCorrectly() {
@@ -62,7 +62,7 @@ final class SampleXCUITests: XCTestCase {
         textField.tap()
         textField.typeText("VK")
         app.keyboards.buttons["Return"].tap()
-        if displayedText.isEnabled {
+        if displayedText.isHittable {
             XCTContext.runActivity(named: "Проверка отображения введённого текста") { _ in
                 XCTAssertTrue(displayedText.waitForExistence(timeout: 3),
                               "Текст 'VK' должен появиться на экране")
@@ -94,17 +94,54 @@ final class SampleXCUITests: XCTestCase {
             }
         }
         XCTContext.runActivity(named: "Проверка сохранения текста после перехода на WebView") { _ in
-                app.tabBars.buttons["Web View"].tap()
-                app.tabBars.buttons["UI Elements"].tap()
-                
-                XCTAssertTrue(displayedText.waitForExistence(timeout: 3),
-                            "Текст должен сохраняться при возврате на экран")
-                XCTAssertEqual(displayedText.label, "VK",
-                             "Текст не должен изменяться при переключении экранов")
+            app.tabBars.buttons["Web View"].tap()
+            app.tabBars.buttons["UI Elements"].tap()
+            
+            XCTAssertTrue(displayedText.waitForExistence(timeout: 3),
+                          "Текст должен сохраняться при возврате на экран")
+            XCTAssertEqual(displayedText.label, "VK",
+                           "Текст не должен изменяться при переключении экранов")
         }
     }
     
-    func testSwipeToText() {
-        print(app.webViews.debugDescription)
+    // Поиск по началу текста
+    func testShouldFindTextByPrefix() {
+        app.tabBars.buttons["Web View"].tap()
+        let beginText = app.webViews.staticTexts.containing(NSPredicate(format: "label BEGINSWITH %@", "Give your")).firstMatch
+        XCTAssertTrue(beginText.waitForExistence(timeout: 5),
+                      "Не найден текст по началу символов")
+    }
+    
+    // Поиск с игнорированием регистра
+    func testShouldFindTextCaseInsensitive() {
+        app.tabBars.buttons["Web View"].tap()
+        let containsText = app.webViews.staticTexts.containing(NSPredicate(format: "label CONTAINS[c] %@", "give your")).firstMatch
+        XCTAssertTrue(containsText.waitForExistence(timeout: 5),
+                      "Не найден текст с игнорированием регистра")
+        
+    }
+    
+    // Поиск по ключевым словам
+    func testShouldFindTextByMultipleKeywords() {
+        app.tabBars.buttons["Web View"].tap()
+        let keywords = ["users", "seamless"]
+        let keyText = app.webViews.staticTexts.containing(NSPredicate(format:                   "label CONTAINS %@ AND label CONTAINS %@",
+                                                                      keywords[0], keywords[1])).firstMatch
+        XCTAssertTrue(keyText.waitForExistence(timeout: 5),
+                      "Не найден текст по ключевым словам")
+        
+    }
+    func testScrollToTextBenefits() {
+        app.tabBars.buttons["Web View"].tap()
+        let scrollText = app.webViews.staticTexts["Benefits"]
+        // Скроллим, пока элемент не появится на экране
+        for _ in 1...10 {
+            if scrollText.isHittable {
+                return
+            }
+            sleep(3)
+            app.webViews.firstMatch.swipeUp()
+        }
+        XCTFail("Текст 'Benefits' не найден после 15 скроллов")
     }
 }
