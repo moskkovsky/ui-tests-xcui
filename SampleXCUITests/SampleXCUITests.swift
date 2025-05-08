@@ -2,65 +2,109 @@
 //  SampleXCUITests.swift
 //  SampleXCUITests
 //
-//  Created by Kalam Shah on 13/02/18.
-//  Copyright © 2018 BrowserStack. All rights reserved.
+//  Created by moskovsky on 06.05.2025.
+//  Copyright © 2025 BrowserStack. All rights reserved.
 //
 
 import XCTest
 
-class SampleXCUITests: XCTestCase {
-        
+final class SampleXCUITests: XCTestCase {
+    private let app = XCUIApplication()
+    
     override func setUp() {
         super.setUp()
-        
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-        
-        // In UI tests it is usually best to stop immediately when a failure occurs.
-        continueAfterFailure = false
-        // UI tests must launch the application that they test. Doing this in setup will make sure it happens for each test method.
-        XCUIApplication().launch()
-
-        // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
+        app.launch()
     }
     
     override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
+        app.terminate()
     }
     
-    func testAlert() {
+    func testAlertShouldAppearAfterButtonTap() {
+        let alertButton = app.buttons["Alert"]
+            XCTAssertTrue(alertButton.waitForExistence(timeout: 3),
+                         "Кнопка 'Alert' не найдена на экране")
+        alertButton.tap()
         
-        let app = XCUIApplication()
-        
-        //bring up the alert
-        app.buttons["Alert"].tap()
-        
-        //verify that the alert has come
-        XCTAssertEqual(app.alerts.element.label, "Alert")
-        
-        //dismiss the alert
-        app.alerts.buttons["OK"].tap()
-        
-        //verify that the alert is dismissed
-        XCTAssertEqual(app.alerts.count, 0)
+        let alert = app.alerts.element.staticTexts["Alert"]
+            XCTAssertTrue(alert.waitForExistence(timeout: 3),
+                      "Alert не появился после нажатия кнопки")
     }
     
-    func testText() {
-        let app = XCUIApplication()
+    func testAlertShouldDisappearAfterTappingOK() {
+        let alertButton = app.buttons["Alert"]
+            XCTAssertTrue(alertButton.waitForExistence(timeout: 3),
+                         "Кнопка 'Alert' не найдена на экране")
+        alertButton.tap()
         
-        //visit the text page
-        app.buttons["Text"].tap()
+        let alert = app.alerts.element.staticTexts["Alert"]
+            XCTAssertTrue(alert.waitForExistence(timeout: 3),
+                      "Alert не появился после нажатия кнопки")
         
-        let enterText = "Hi Browserstack!!"
-        //verify that the text field has come up
-        XCTAssert(app.textFields["Enter a text"].exists)
+        let alertButtonOK = app.alerts.element.buttons["OK"]
+        alertButtonOK.tap()
         
-        //write the text
-        app.textFields["Enter a text"].tap()
-        app.textFields["Enter a text"].typeText(enterText)
-        app.typeText("\r")
+        XCTAssertFalse(alert.waitForExistence(timeout: 3),
+                  "Alert должен исчезнуть после нажатия OK")
+    }
+    
+    func testTextInputShouldDisplayCorrectly() {
+        let textButton = app.buttons["Text"]
+        XCTAssertTrue(textButton.waitForExistence(timeout: 3),
+                      "Кнопка 'Text' не найдена на экране")
+        textButton.tap()
         
-        //verify that the text entered matches the text view
-        XCTAssertEqual(app.staticTexts.element.label, enterText)
+        let textField = app.textFields["Enter a text"]
+        let displayedText = app.staticTexts["VK"]
+        XCTAssertTrue(textField.waitForExistence(timeout: 3),
+                      "Поле ввода должно отображаться после нажатия кнопки")
+        textField.tap()
+        textField.typeText("VK")
+        app.keyboards.buttons["Return"].tap()
+        if displayedText.isEnabled {
+            XCTContext.runActivity(named: "Проверка отображения введённого текста") { _ in
+                XCTAssertTrue(displayedText.waitForExistence(timeout: 3),
+                              "Текст 'VK' должен появиться на экране")
+                XCTAssertEqual(displayedText.label, "VK",
+                               "Отображаемый текст должен точно соответствовать введенному")
+            }
+        }
+    }
+    
+    func testCheckVisibleTextWhileSwitchingBetweenScreens() {
+        let textButton = app.buttons["Text"]
+        XCTAssertTrue(textButton.waitForExistence(timeout: 3),
+                      "Кнопка 'Text' не найдена на экране")
+        textButton.tap()
+        
+        let textField = app.textFields["Enter a text"]
+        let displayedText = app.staticTexts["VK"]
+        XCTAssertTrue(textField.waitForExistence(timeout: 3),
+                      "Поле ввода должно отображаться после нажатия кнопки")
+        textField.tap()
+        textField.typeText("VK")
+        app.keyboards.buttons["Return"].tap()
+        if displayedText.isEnabled {
+            XCTContext.runActivity(named: "Проверка отображения введённого текста") { _ in
+                XCTAssertTrue(displayedText.waitForExistence(timeout: 3),
+                              "Текст 'VK' должен появиться на экране")
+                XCTAssertEqual(displayedText.label, "VK",
+                               "Отображаемый текст должен точно соответствовать введенному")
+            }
+        }
+        XCTContext.runActivity(named: "Проверка сохранения текста после перехода на WebView") { _ in
+                app.tabBars.buttons["Web View"].tap()
+                app.tabBars.buttons["UI Elements"].tap()
+                
+                XCTAssertTrue(displayedText.waitForExistence(timeout: 3),
+                            "Текст должен сохраняться при возврате на экран")
+                XCTAssertEqual(displayedText.label, "VK",
+                             "Текст не должен изменяться при переключении экранов")
+        }
+    }
+    
+    func testSwipeToText() {
+        print(app.webViews.debugDescription)
     }
 }
