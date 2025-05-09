@@ -12,7 +12,7 @@ import XCTest
 final class HomeScreen: BaseScreen {
     private lazy var titleLabel = app.navigationBars.staticTexts["UI Elements"]
     private lazy var buttonText = app.buttons["Text"]
-    private lazy var alertButton = app.buttons["Alerft"]
+    private lazy var alertButton = app.buttons["Alert"]
     private lazy var alertText = app.alerts.element.staticTexts["Дуров верни стену"]
     private lazy var alertOKButton = app.alerts.element.buttons["😔"]
     private lazy var buttonBack = app.navigationBars.buttons["UI Elements"]
