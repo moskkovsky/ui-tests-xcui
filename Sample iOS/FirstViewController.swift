@@ -35,9 +35,9 @@ class FirstViewController: UIViewController {
     // Mark: Actions
     
     @IBAction func showAlert(_ sender: UIButton) {
-        let alertController = UIAlertController(title: "Alert", message: "This is a native alert.", preferredStyle: UIAlertControllerStyle.alert)
+        let alertController = UIAlertController(title: "Alert", message: "Дуров верни стену", preferredStyle: UIAlertControllerStyle.alert)
        
-        let okAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.default) { (result : UIAlertAction) -> Void in
+        let okAction = UIAlertAction(title: "😔", style: UIAlertActionStyle.default) { (result : UIAlertAction) -> Void in
             print("OK")
         }
     
