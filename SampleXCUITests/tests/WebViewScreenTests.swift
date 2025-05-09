@@ -12,33 +12,72 @@ final class WebViewScreenTests: BaseTests {
     
     override func setUp() {
         super.setUp()
-        BaseScreen()
-            .goToWebView()
-        WebViewScreen()
-            .baseElement
-            .verifyExistence(message: ErrorMessageValue.loadWebViewScreen)
+        step("Переходим на экран WebView из главного меню") {
+            BaseScreen()
+                .goToWebView()
+        }
+        step("Проверяем корректную загрузку экрана WebView") {
+            WebViewScreen()
+                .baseElement
+                .verifyExistence(message: ErrorMessageValue.loadWebViewScreen)
+        }
     }
     
     func testScrollToTextBenefits() {
-        WebViewScreen()
-            .verifyBenefitsSectionVisible()
+        epic("Экран WebView")
+        feature("Поиск текста")
+        story("Нахождение текста с помощью ScrollView")
+        displayName("Поиск текста с помощью скролл")
+        severity("MINOR")
+        owner("Anton Moskovsky")
+        step("Выполняем скролл до раздела Benefits") {
+            WebViewScreen()
+                .verifyBenefitsSectionVisible()
+        }
     }
     
     // Поиск по началу текста
     func testShouldFindTextByPrefix() {
-        WebViewScreen()
-            .shouldFindTextByPrefix()
+        epic("Экран WebView")
+        feature("Поиск текста")
+        story("Поиск по началу текста")
+        displayName("Поиск текста по префиксу")
+        severity("MINOR")
+        owner("Anton Moskovsky")
+        
+        step("Ищем текст по начальным символам") {
+            WebViewScreen()
+                .shouldFindTextByPrefix()
+        }
     }
     
     // Поиск с игнорированием регистра
     func testShouldFindTextCaseInsensitive() {
-        WebViewScreen()
-            .shouldFindTextCaseInsensitive()
+        epic("Экран WebView")
+        feature("Поиск текста")
+        story("Поиск с игнорированием регистра")
+        displayName("Поиск текста без учета регистра")
+        severity("MINOR")
+        owner("Anton Moskovsky")
+        
+        step("Ищем текст, игнорируя регистр символов") {
+            WebViewScreen()
+                .shouldFindTextCaseInsensitive()
+        }
     }
     
     // Поиск по ключевым словам
     func testShouldFindTextByMultipleKeywords() {
-        WebViewScreen()
-            .shouldFindTextByMultipleKeywords(["users", "seamless"])
+        epic("Экран WebView")
+        feature("Поиск текста")
+        story("Поиск по ключевым словам")
+        displayName("Поиск текста по нескольким ключевым словам")
+        severity("MINOR")
+        owner("Anton Moskovsky")
+        
+        step("Ищем текст по ключевым словам") {
+            WebViewScreen()
+                .shouldFindTextByMultipleKeywords(["users", "seamless"])
+        }
     }
 }
